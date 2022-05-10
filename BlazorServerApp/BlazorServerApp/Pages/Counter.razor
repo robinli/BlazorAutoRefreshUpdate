@@ -1,0 +1,33 @@
+﻿@page "/counter"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStore
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private async Task IncrementCount()
+    {
+        currentCount++;
+        /*TODO Blazor Server Auto Refresh Update Tip 04: Save Save Session Value*/
+        await ProtectedSessionStore.SetAsync("count", currentCount);
+    }
+
+    /*TODO Blazor Server Auto Refresh Update Tip 03: Read Session Value*/
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ProtectedSessionStore.GetAsync<int>("count");
+            currentCount = result.Success ? result.Value : 0;
+        }
+        catch { }
+    }
+}

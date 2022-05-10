@@ -1,0 +1,58 @@
+﻿@*TODO Blazor Web Assembly Auto Refresh Update Tip 04*@
+@inject ILocalStorageService LocalStorageService
+
+@if (hasLoaded)
+{
+    <CascadingValue Value="@this">
+        @ChildContent
+    </CascadingValue>
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    string Key = "AppState";
+    bool hasLoaded;
+
+    AppState appState;
+    public AppState AppState
+    {
+        get
+        {
+            return appState;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var persistedAppState = await LocalStorageService.GetItemAsync<AppState>(Key);
+        if (persistedAppState != null && DateTime.Now <= persistedAppState.LastAccessed.AddSeconds(persistedAppState.TimeToLiveInSeconds))
+        {
+            appState = persistedAppState;
+        }
+        else
+        {
+            appState = new AppState();
+        }
+        hasLoaded = true;
+    }
+
+    public void SaveChanges()
+    {
+        SaveChangesAsync().GetAwaiter().GetResult();
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        // LocalStorage allows up to 5MB by default.
+        // Test: https://arty.name/localstorage.html
+        // TIP: Never store sensitive data in LocalStorage
+
+        AppState.LastAccessed = DateTime.Now;
+        //var json = JsonConvert.SerializeObject(AppState);
+        await LocalStorageService.SetItemAsync(Key, AppState);
+
+    }
+}

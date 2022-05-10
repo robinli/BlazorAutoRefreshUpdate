@@ -1,0 +1,11 @@
+﻿@page "/"
+@namespace BlazorServerApp.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_Layout";
+}
+
+@*TODO Blazor Server Auto Refresh Update Tip 01: ServerPrerendered -> Server  
+  測試沿用 ServerPrerendered 不改也行
+*@
+<component type="typeof(App)" render-mode="ServerPrerendered" />

@@ -1,0 +1,53 @@
+﻿@*TODO Blazor Web Assembly Auto Refresh Update Tip 06 : Toolbar Blazor Component *@
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+@if (NewVersionAvailable)
+{
+    <span>New version available.&nbsp;</span>
+    <button @onclick="Update">Update</button>
+}
+
+@code {
+    private string Version = "";
+    private bool NewVersionAvailable = false;
+    private System.Timers.Timer VersionCheckTimer;
+
+    async Task Update()
+    {
+        await JSRuntime.InvokeVoidAsync("Update");
+    }
+
+    async Task GetVersion()
+    {
+        try
+        {
+            var curVersion = await Http.GetStringAsync("GetVersion");
+            if(curVersion != Version)
+            {
+                NewVersionAvailable = true;
+                await InvokeAsync(StateHasChanged);
+
+                await JSRuntime.InvokeVoidAsync("Update");
+            }
+        }
+        catch { }
+    }
+
+    void TimerElapsed(object sender, EventArgs e)
+    {
+        Task.Run(async () => await GetVersion());
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Version = await Http.GetStringAsync("GetVersion");
+        }
+        catch { }
+        VersionCheckTimer = new System.Timers.Timer(5000);
+        VersionCheckTimer.Elapsed += TimerElapsed;
+        VersionCheckTimer.Start();
+    }
+}

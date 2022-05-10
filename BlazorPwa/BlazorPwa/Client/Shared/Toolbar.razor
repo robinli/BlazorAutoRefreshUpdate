@@ -1,0 +1,91 @@
+﻿@*TODO Blazor Web Assembly PWA Auto Refresh Update Tip 07: Toolbar Blazor Component*@
+@using System.Timers;
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+@if (NewVersionAvailable || ServerVersion != ClientVersion)
+{
+    <div class="modal fade show" tabindex="-1" style="display:block" role="dialog" aria-modal="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info">
+                    <h5 class="modal-title">Software Update</h5>
+                </div>
+                <div class="modal-body">
+                    <p>New version @CurrentVersion is now available.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="ReloadUpdate">Update Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    [CascadingParameter]
+    private string ClientVersion { get; set; } = "1.0";
+    private string ServerVersion { get; set; } = "";
+    private string CurrentVersion { get; set; } = "";
+
+    private bool NewVersionAvailable { get; set; } = false;   
+    public CascadingAppStateProvider StateProvider { get; set; }    
+    private Timer VersionCheckTimer;
+
+    async Task ReloadUpdate()
+    {
+        await StateProvider.SaveChangesAsync();
+        await JSRuntime.InvokeVoidAsync("ReloadUpdate");
+    }
+
+    async Task GetVersion()
+    {
+        try
+        {
+            CurrentVersion = await Http.GetStringAsync("GetVersion");
+            if (CurrentVersion != ServerVersion)
+            {
+                NewVersionAvailable = true;
+                await InvokeAsync(StateHasChanged);
+                VersionCheckTimer.Stop();
+                //自動更新
+                await JSRuntime.InvokeVoidAsync("AutoUpdate");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("GetVersion has error");
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    void TimerElapsed(object sender, EventArgs e)
+    {
+        Task.Run(async () => await GetVersion());
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // try/catch because we could be offline.
+            ServerVersion = await Http.GetStringAsync("GetVersion");
+            if(ClientVersion != ServerVersion)
+            {
+                //自動更新
+                await JSRuntime.InvokeVoidAsync("AutoUpdate");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("OnInitializedAsync has error");
+            Console.WriteLine(e.Message);
+        }
+
+        //每隔 10 秒檢查一次
+        VersionCheckTimer = new Timer(10000);
+        VersionCheckTimer.Elapsed += TimerElapsed;
+        VersionCheckTimer.Start();
+    }
+}
