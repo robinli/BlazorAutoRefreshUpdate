@@ -1,5 +1,7 @@
 # Blazor App Auto Update
 
+[Chinese 繁體中文](https://github.com/robinli/BlazorAutoRefreshUpdate/blob/main/README_TW.md) :point_left:
+
 ## About this
 This repository provides the following three types of Blazor App, when you publish new version app, the browser/client will automatically update the new version.
 -   Blazor Server App
