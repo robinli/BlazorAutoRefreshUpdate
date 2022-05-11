@@ -22,15 +22,15 @@
 
 程式碼修改細節，可以透過 Find in Files 輸入 `Auto Refresh Update Tip`
 檢視所有程式碼片段。
-![Find in Files](https://i.imgur.com/wzU4sgu.png)
 
-![Key in: Auto Refresh Update Tip](https://i.imgur.com/6WYaAZ4.png)
-
-![Find Result](https://i.imgur.com/st7s85A.png)
+![Find in Files](https://i.imgur.com/wzU4sgu.png)  
+  
+![Key in: Auto Refresh Update Tip](https://i.imgur.com/6WYaAZ4.png)  
+  
+![Find Result](https://i.imgur.com/st7s85A.png)  
 
 
 ## 發行程序
-
 ### Blazor Server App 
 不用修改任何檔案。
 
@@ -44,6 +44,7 @@
 -   Toolbar.razor
 -   service-worker.published.js
 -   Index.razor (非必要)
+
 
 ## 參考資源
 Blazor Train 教學影片 [Handling App Updates: Carl Franklin's Blazor Train Ep 60](https://www.youtube.com/watch?v=IdauS04L7H8)
