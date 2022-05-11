@@ -46,7 +46,9 @@
             Version = await Http.GetStringAsync("GetVersion");
         }
         catch { }
-        VersionCheckTimer = new System.Timers.Timer(5000);
+
+        //每隔 10 秒檢查一次
+        VersionCheckTimer = new System.Timers.Timer(10000);
         VersionCheckTimer.Elapsed += TimerElapsed;
         VersionCheckTimer.Start();
     }
